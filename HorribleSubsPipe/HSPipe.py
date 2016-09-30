@@ -22,6 +22,8 @@
 
 myAnimeFolder=''
 
+## Importing
+
 if myAnimeFolder == '':
 	from os.path import expanduser
 	myAnimeFolder=expanduser('~')+'/Videos'
