@@ -70,9 +70,9 @@ currEps = buildShowList(torrs)
 print "<openbox_pipe_menu>"
 for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 	## set the download folder to be myAnimeFolder/the title of the show
-	folder = myAnimeFolder+"/"+match("(.*)( - | \(.*\))",ep[0][0]).group(1).replace('&','&amp;')
+	folder = myAnimeFolder+"/"+match("(.*)( - | \(.*\))",ep[0][0]).group(1).replace('&','&amp;').replace("'","&apos;")
 	## make a submenu for the available qualities
-	print "  <menu id='"+ep[0][0].replace(' ','').replace('&','&amp;')+"' label='"+ep[0][0]+"'>"
+	print "  <menu id='"+ep[0][0].replace(' ','').replace('&','&amp;').replace("'","&apos;")+"' label='"+ep[0][0].replace('&','&amp;').replace("'","&apos;")+"'>"
 	for qual,link in sorted(ep[1], key=lambda qt: eval(qt[0][:-1])):
 		## make the menu item for each quality
 		print "    <item label='"+qual.replace('&','&amp;')+"'>"
