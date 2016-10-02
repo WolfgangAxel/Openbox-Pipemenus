@@ -39,8 +39,17 @@ def buildShowList(array):
 	for listing in array:
 		show=[]
 		## Match the show title and the quality as per HS's naming conventions
-		Entry = match('(?i)\[.*\] (.* )+\[(.*)\]',listing.text_content())
-		title = Entry.group(1)
+		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.*)\]',listing.text_content())
+		try: ## Tries to grab show title
+			title = Entry.group(1)
+			quals = Entry.group(2)
+		except: ## Probably a NotHorribleSubs torrent
+			try:
+				Entry = match('(?i)\[(.*)\] (.* )+\[(.*)\]',listing.text_content())
+				title = Entry.group(2)+'['+Entry.group(1)+'] '
+				quals = Entry.group(3)
+			except: ## If it still isn't matching, something is wrong with it.
+				continue
 		## Search List for the show (consolidates the different qualities)
 		if [title] not in (x[0] for x in List):
 			show.append([title])
@@ -49,7 +58,6 @@ def buildShowList(array):
 			## find the index of the title in List
 			index = [n for n,(i,s) in enumerate(List) if i == [title]]
 			new=False
-		quals = Entry.group(2)
 		## create the download link as per nyaa.se's url conventions
 		link=listing.attrib['href'].replace("//","").replace("view","download")
 		if new:
@@ -70,7 +78,15 @@ currEps = buildShowList(torrs)
 print "<openbox_pipe_menu>"
 for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 	## set the download folder to be myAnimeFolder/the title of the show
-	folder = myAnimeFolder+"/"+match("(.*)( - | \(.*\))",ep[0][0]).group(1).replace('&','&amp;').replace("'","&apos;")
+	try:
+		folder = myAnimeFolder+"/"+match("(.*)( - | \(.*\))",ep[0][0]).group(1).replace('&','&amp;').replace("'","&apos;")
+	except:
+		if ep[0][0][-1] == ' ':
+			ep[0][0] = ep[0][0][:-1]
+			folder = ep[0][0].replace('&','&amp;').replace("'","&apos;")
+		else:
+			print "  <separator label='Error with "+ep[0][0].replace('&','&amp;').replace("'","&apos;")+"' />"
+			continue
 	## make a submenu for the available qualities
 	print "  <menu id='"+ep[0][0].replace(' ','').replace('&','&amp;').replace("'","&apos;")+"' label='"+ep[0][0].replace('&','&amp;').replace("'","&apos;")+"'>"
 	for qual,link in sorted(ep[1], key=lambda qt: eval(qt[0][:-1])):
