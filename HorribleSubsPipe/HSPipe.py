@@ -39,13 +39,13 @@ def buildShowList(array):
 	for listing in array:
 		show=[]
 		## Match the show title and the quality as per HS's naming conventions
-		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.*)\]',listing.text_content())
+		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.{4,5})\]',listing.text_content())
 		try: ## Tries to grab show title
 			title = Entry.group(1)
 			quals = Entry.group(2)
 		except: ## Probably a NotHorribleSubs torrent
 			try:
-				Entry = match('(?i)\[(.*)\] (.* )+\[(.*)\]',listing.text_content())
+				Entry = match('(?i)\[(.*)\] (.* )+\[(.{4,5)\]',listing.text_content())
 				title = Entry.group(2)+'['+Entry.group(1)+'] '
 				quals = Entry.group(3)
 			except: ## If it still isn't matching, something is wrong with it.
