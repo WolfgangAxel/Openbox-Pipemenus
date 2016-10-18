@@ -26,16 +26,17 @@ for DIR in STEAMAPPS:
 		DIR=DIR+'/'
 	# Get the .acf's in that DIR
 	SOMEGAMES = popen('ls "'+DIR+'"*.acf').readlines()
-	# Tidy them up and add to the list
+	# Read the .acf's and add the game's name and ID to a list
 	for GAME in SOMEGAMES:
-		GAMES.append(GAME.replace('\n',''))
-# Make an entry for each game
-for GAME in GAMES:
-	ACF=open(GAME,'r').read()
-	# Find the appid of the game
-	ID=search('"appid".*"(.*)"',ACF).group(1)
-	# Find the name of the game
-	NAME=search('"name".*"(.*)"',ACF).group(1)
+		ACF=open(GAME.replace('\n',''),'r').read()
+		# Find the appid of the game
+		ID=search('"appid".*"(.*)"',ACF).group(1)
+		# Find the name of the game
+		NAME=search('"name".*"(.*)"',ACF).group(1)
+		GAMES.append([NAME,ID])
+# Make an entry for each game (and alphabetize the list)
+for GAME in sorted(GAMES):
+	NAME,ID=GAME
 	# Make the entry
 	print '  <item label="'+NAME.replace('&','&amp;')+'">'
 	print '    <action name="Execute">'
