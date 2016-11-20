@@ -18,18 +18,20 @@
 
 # The default is to use the ~/Videos folder. To specify a different
 # folder, paste the full path to your anime folder in between the ''s
-# Note: leave off the trailing / (~/Videos not ~/Videos/)
 
 myAnimeFolder=''
 
-## Importing
+## Normalize folder
 
 if myAnimeFolder == '':
 	from os.path import expanduser
-	myAnimeFolder=expanduser('~')+'/Videos'
+	myAnimeFolder = expanduser('~')+'/Videos'
+elif myAnimeFolder[-1] == '/':
+	myAnimeFolder = myAnimeFolder[:-1]
 
 from re import match
 import requests
+from bs4 import BeautifulSoup as BS
 
 ### Definitions
 
@@ -68,7 +70,6 @@ def buildShowList(soup):
 ### Begin piping
 
 ## Search Nyaa.se for the recent HS torrents
-from bs4 import BeautifulSoup as BS
 page = requests.get("https://www.nyaa.se/?page=rss&cats=1_0&term=%5BHorribleSubs%5D")
 soup = BS(page.content,'html.parser')
 ## Create an array in the format of [ [show name], [ [ quality, link], [ quality, link]... ] ]...
@@ -95,7 +96,7 @@ for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 		## attempt to make a folder in myAnimeDownloads; wget the .torrent
 		## file; start transmission-cli downloading; when finished downloading,
 		## remove the .torrent file, then remove all torrents from the queue
-		print '        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+link.replace('&','&amp;')+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*\'</execute>"'
+		print '        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+link.replace('&','&amp;')+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"'
 		print "      </action>"
 		print "    </item>"
 	print "  </menu>"
