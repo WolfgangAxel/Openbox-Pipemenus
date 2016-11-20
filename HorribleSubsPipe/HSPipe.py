@@ -30,22 +30,20 @@ if myAnimeFolder == '':
 
 from re import match
 import requests
-from lxml import html
 
 ### Definitions
 
-def buildShowList(array):
-	List = []
-	for listing in array:
-		show=[]
-		## Match the show title and the quality as per HS's naming conventions
-		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.{4,5})\]',listing.text_content())
+def buildShowList(soup):
+	List=[]
+	for item in soup.find_all('item'):
+		show = []
+		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.{4,5})\]',item.title.string)
 		try: ## Tries to grab show title
 			title = Entry.group(1)
 			quals = Entry.group(2)
 		except: ## Probably a NotHorribleSubs torrent
 			try:
-				Entry = match('(?i)\[(.*)\] (.* )+\[(.{4,5)\]',listing.text_content())
+				Entry = match('(?i)\[(.*)\] (.* )+\[(.{4,5)\]',item.title.string)
 				title = Entry.group(2)+'['+Entry.group(1)+'] '
 				quals = Entry.group(3)
 			except: ## If it still isn't matching, something is wrong with it.
@@ -58,8 +56,8 @@ def buildShowList(array):
 			## find the index of the title in List
 			index = [n for n,(i,s) in enumerate(List) if i == [title]]
 			new=False
-		## create the download link as per nyaa.se's url conventions
-		link=listing.attrib['href'].replace("//","").replace("view","download")
+		## Get the download link
+		link = item.link.string
 		if new:
 			show.append([[quals,link]])
 			List.append(show)
@@ -70,11 +68,11 @@ def buildShowList(array):
 ### Begin piping
 
 ## Search Nyaa.se for the recent HS torrents
-page = requests.get("http://www.nyaa.se/?page=search&cats=1_0&filter=0&term=%5BHorribleSubs%5D")
-page = html.fromstring(page.content)
-torrs = page.xpath('//td[@class="tlistname"]/a')
+from bs4 import BeautifulSoup as BS
+page = requests.get("https://www.nyaa.se/?page=rss&cats=1_0&term=%5BHorribleSubs%5D")
+soup = BS(page.content,'html.parser')
 ## Create an array in the format of [ [show name], [ [ quality, link], [ quality, link]... ] ]...
-currEps = buildShowList(torrs)
+currEps = buildShowList(soup)
 print "<openbox_pipe_menu>"
 for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 	## set the download folder to be myAnimeFolder/the title of the show
