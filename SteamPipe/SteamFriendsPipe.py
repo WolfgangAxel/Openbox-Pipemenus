@@ -68,7 +68,7 @@ print("""  <menu id="status" label="Set status">
 if len(onlineFriends) != 0:
 	print '  <separator label="Online"/>'
 	for username,userid in sorted(onlineFriends):
-		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
+		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;").replace("_","__")+"""'>
     <action name='Execute'>
       <execute>steam steam://friends/message/"""+userid+"""</execute>
     </action>
@@ -76,7 +76,7 @@ if len(onlineFriends) != 0:
 if len(offlineFriends) != 0:
 	print '  <separator label="Offline"/>'
 	for username,userid in sorted(offlineFriends):
-		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
+		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;").replace("_","__")+"""'>
     <action name='Execute'>
       <execute>steam steam://friends/message/"""+userid+"""</execute>
     </action>
