@@ -49,7 +49,7 @@ else:
     </action>
   </item>""")
 if path.exists(path.dirname(path.realpath(__file__))+"/SteamFriendsPipe.py"):
-	print '  <menu execute="python '+path.dirname(path.realpath(__file__))+'"/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>'
+	print '  <menu execute="python '+path.dirname(path.realpath(__file__))+'/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>'
 else:
 	print("""  <menu id="steamchat" label="Chat">
     <item label="Open Friends">
@@ -94,7 +94,7 @@ for DIR in STEAMAPPS:
 for GAME in sorted(GAMES):
 	NAME,ID=GAME
 	# Make the entry
-	print '    <item label="'+NAME.replace('&','&amp;').replace("'","&apos;")+'">'
+	print '    <item label="'+NAME.replace('&','&amp;').replace("'","&apos;").replace("_","__")+'">'
 	print '      <action name="Execute">'
 	print "        <execute>steam steam://run/"+ID+"</execute>"
 	print "      </action>"
