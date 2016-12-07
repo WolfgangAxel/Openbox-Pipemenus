@@ -27,6 +27,7 @@
 conkyDir = '~/.config/conky'
 
 from os import popen
+from re import match
 
 print("""<openbox_pipe_menu>
   <item label="Restart">
@@ -40,10 +41,13 @@ print("""<openbox_pipe_menu>
     </action>
   </item>
   <separator/>""")
-for item in popen('ls ~/.config/conky/*.conkyrc').readlines():
-	print '  <item label="'+item[:-1].replace('/home/keaton/.config/conky/','').replace('.conkyrc','').replace('&','&amp;').replace("_","__")+'">'
+for item in popen('ls '+conkyDir+'/*.conkyrc').readlines():
+	rip = match("(.*)[/](.*).conkyrc",item)
+	path = rip.group(1)
+	name = rip.group(2)
+	print '  <item label="'+name.replace('&','&amp;').replace("'","&apos;").replace("_","__")+'">'
 	print '    <action name="Execute">'
-	print "      <execute>sh -c 'ln -f -s "+item[:-1]+" ~/.conkyrc &amp;&amp; killall conky; conky -c .conkyrc'</execute>"
+	print "      <execute>sh -c 'ln -f -s "+path+"/"+name.replace('&','&amp;').replace("'","&apos;")+".conkyrc ~/.conkyrc &amp;&amp; killall conky; conky -c .conkyrc'</execute>"
 	print "    </action>"
 	print "  </item>"
 print "</openbox_pipe_menu>"
