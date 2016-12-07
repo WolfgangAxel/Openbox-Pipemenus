@@ -34,15 +34,14 @@ print "<openbox_pipe_menu>"
 # Because I'm both inconsistent and lazy
 if gamedir[-1] != '/':
 	gamedir=gamedir+'/'
-gamedir=gamedir.replace('&','&amp;')
 for game in popen("ls "+gamedir+"*.g*").readlines():
   # Get the name of the game from the ls output
-	name = re.match('(?i)'+gamedir+'(.*).g.*',game).group(1).replace('&','&amp;')
+	name = re.match('(?i)'+gamedir+'(.*).g.*',game).group(1).replace('&','&amp;').replace("'","&apos;").replace("_","__")
 	print '  <item label="'+name+'">'
 	print '    <action name="Execute">'
   # Kill pulseaudio, launch the game, then restart pulseaudio.
   # Pulse has always caused vbam to sporatically crash for me
-	print "      <execute>sh -c \"pulseaudio -k; vbam --opengl-nearest --pause-when-inactive --flash-size=1 --bios="+gamedir+"gba_bios.bin --rtc '"+game[:-1].replace('&','&amp;')+"';pulseaudio --start\"</execute>"
+	print "      <execute>sh -c \"pulseaudio -k; vbam --opengl-nearest --pause-when-inactive --flash-size=1 --bios="+gamedir.replace('&','&amp;').replace("'","&apos;")+"gba_bios.bin --rtc '"+game[:-1].replace('&','&amp;').replace("'","&apos;")+"';pulseaudio --start\"</execute>"
 	print "    </action>"
 	print "  </item>"
 
