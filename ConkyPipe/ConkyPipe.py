@@ -41,7 +41,7 @@ print("""<openbox_pipe_menu>
   </item>
   <separator/>""")
 for item in popen('ls ~/.config/conky/*.conkyrc').readlines():
-	print '  <item label="'+item[:-1].replace('/home/keaton/.config/conky/','').replace('.conkyrc','').replace('&','&amp;')+'">'
+	print '  <item label="'+item[:-1].replace('/home/keaton/.config/conky/','').replace('.conkyrc','').replace('&','&amp;').replace("_","__")+'">'
 	print '    <action name="Execute">'
 	print "      <execute>sh -c 'ln -f -s "+item[:-1]+" ~/.conkyrc &amp;&amp; killall conky; conky -c .conkyrc'</execute>"
 	print "    </action>"
