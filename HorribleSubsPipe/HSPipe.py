@@ -74,7 +74,7 @@ page = requests.get("https://www.nyaa.se/?page=rss&cats=1_0&term=%5BHorribleSubs
 soup = BS(page.content,'html.parser')
 ## Create an array in the format of [ [show name], [ [ quality, link], [ quality, link]... ] ]...
 currEps = buildShowList(soup)
-print "<openbox_pipe_menu>"
+print("<openbox_pipe_menu>")
 for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 	## set the download folder to be myAnimeFolder/the title of the show
 	try:
@@ -82,22 +82,22 @@ for ep in sorted(currEps,key=lambda nm: nm[0]): ## alphabetizes the menu
 	except:
 		if ep[0][0][-1] == ' ':
 			ep[0][0] = ep[0][0][:-1]
-			folder = ep[0][0].replace('&','&amp;').replace("'","&apos;")
+			folder = myAnimeFolder+"/"+ep[0][0].replace('&','&amp;').replace("'","&apos;")
 		else:
-			print "  <separator label='Error with "+ep[0][0].replace('&','&amp;').replace("'","&apos;")+"' />"
+			print("  <separator label='Error with "+ep[0][0].replace('&','&amp;').replace("'","&apos;").replace("_","__")+"' />")
 			continue
 	## make a submenu for the available qualities
-	print "  <menu id='"+ep[0][0].replace(' ','').replace('&','&amp;').replace("'","&apos;")+"' label='"+ep[0][0].replace('&','&amp;').replace("'","&apos;")+"'>"
+	print("  <menu id='"+ep[0][0].replace(' ','').replace('&','&amp;').replace("'","&apos;")+"' label='"+ep[0][0].replace('&','&amp;').replace("'","&apos;").replace("_","__")+"'>")
 	for qual,link in sorted(ep[1], key=lambda qt: eval(qt[0][:-1])):
 		## make the menu item for each quality
-		print "    <item label='"+qual.replace('&','&amp;')+"'>"
-		print "      <action name='Execute'>"
+		print("    <item label='"+qual+"'>")
+		print("      <action name='Execute'>")
 		##                The menu commands do the following:
 		## attempt to make a folder in myAnimeDownloads; wget the .torrent
 		## file; start transmission-cli downloading; when finished downloading,
 		## remove the .torrent file, then remove all torrents from the queue
-		print '        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+link.replace('&','&amp;')+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"'
-		print "      </action>"
-		print "    </item>"
-	print "  </menu>"
-print "</openbox_pipe_menu>"
+		print('        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+link.replace('&','&amp;')+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"')
+		print("      </action>")
+		print("    </item>")
+	print("  </menu>")
+print("</openbox_pipe_menu>")
