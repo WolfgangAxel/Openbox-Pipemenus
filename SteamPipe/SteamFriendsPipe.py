@@ -47,33 +47,36 @@ for friend in soup.find_all('steamid'):
 
 print "<openbox_pipe_menu>"
 print("""  <menu id="status" label="Set status">
-    <item id="statusOnline" label="Online">
+    <item label="Online">
       <action name="execute">
         <execute>steam steam://friends/status/online</execute>
       </action>
     </item>
-    <item id="statusOnline" label="Busy">
+    <item label="Busy">
       <action name="execute">
         <execute>steam steam://friends/status/busy</execute>
       </action>
     </item>
-    <item id="statusOnline" label="Offline">
+    <item label="Offline">
       <action name="execute">
         <execute>steam steam://friends/status/offline</execute>
       </action>
     </item>
   </menu>
 """)
-print '  <separator label="Online"/>'
-for username,userid in sorted(onlineFriends):
-	print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
+
+if len(onlineFriends) != 0:
+	print '  <separator label="Online"/>'
+	for username,userid in sorted(onlineFriends):
+		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
     <action name='Execute'>
       <execute>steam steam://friends/message/"""+userid+"""</execute>
     </action>
   </item>""")
-print '  <separator label="Offline"/>'
-for username,userid in sorted(offlineFriends):
-	print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
+if len(offlineFriends) != 0:
+	print '  <separator label="Offline"/>'
+	for username,userid in sorted(offlineFriends):
+		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;")+"""'>
     <action name='Execute'>
       <execute>steam steam://friends/message/"""+userid+"""</execute>
     </action>
