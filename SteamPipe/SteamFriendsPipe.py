@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  SteamFriendsPipe.testing.py
@@ -25,17 +25,46 @@
 # Find your Steam ID by going to steamrep.com, entering your username,
 # then copying the "steamID64" here.
 
-ID = "00000000000000000"
+ID = "76561198073035719"
 
 from requests import get
 from bs4 import BeautifulSoup as BS
+import asyncio
 
+# Get your list of friends
 MyFriends=get("http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key=986110846FF5B222E6FA4B4FDBD552AE&steamid="+ID+"&relationship=friend&format=xml")
 soup = BS(MyFriends.content,"html.parser")
 offlineFriends=[]
 onlineFriends=[]
-for friend in soup.find_all('steamid'):
-	page = get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=986110846FF5B222E6FA4B4FDBD552AE&steamids="+friend.string+"&format=xml")
+# Just to make the next section more readable
+friendLink="http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=986110846FF5B222E6FA4B4FDBD552AE&steamids="
+
+# I don't fully understand how this works, but it does.
+# It should download 5 of your friends' statuses concurrently.
+# As they finish, the next one in line starts until you're out of friends
+async def getFriends():
+	# Make a loop?
+	loop = asyncio.get_event_loop()
+	# This I get. Make an array of "Future" objects
+	# None is for designating an executor (which we don't need, hence None)
+	# get is the function it uses
+	# next portion is the arguments for said function
+	# and we do this for each of your Steam friends
+	pages = [ loop.run_in_executor( None, get, friendLink+friend.string+"&format=xml")
+			for friend in soup.find_all('steamid') ]
+	# I think this just stops the script while we wait for downloading to finish
+	for response in await asyncio.gather(*pages):
+		pass
+	# Return that array
+	return pages
+# Make a loop (again?)?
+yourFriends = asyncio.get_event_loop()
+# Run that loop until it finishes and return the list of "Futures"
+pages = yourFriends.run_until_complete(getFriends())
+for page in pages:
+	# Turn the "Future" into a response object
+	page = page.result()
+	# Parse it
 	summary = BS(page.content,"html.parser")
 	userid = summary.response.players.player.steamid.string
 	username = summary.response.players.player.personaname.string
@@ -44,8 +73,8 @@ for friend in soup.find_all('steamid'):
 		offlineFriends.append([username,userid])
 	else:
 		onlineFriends.append([username,userid])
-
-print "<openbox_pipe_menu>"
+# Make the menu
+print("<openbox_pipe_menu>")
 print("""  <menu id="status" label="Set status">
     <item label="Online">
       <action name="execute">
@@ -62,11 +91,12 @@ print("""  <menu id="status" label="Set status">
         <execute>steam steam://friends/status/offline</execute>
       </action>
     </item>
-  </menu>
-""")
+  </menu>""")
 
+# Only show these submenus if friends exist in them
+# (i.e. is all friends are offline, don't show the Online section
 if len(onlineFriends) != 0:
-	print '  <separator label="Online"/>'
+	print('  <separator label="Online"/>')
 	for username,userid in sorted(onlineFriends):
 		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;").replace("_","__")+"""'>
     <action name='Execute'>
@@ -74,11 +104,11 @@ if len(onlineFriends) != 0:
     </action>
   </item>""")
 if len(offlineFriends) != 0:
-	print '  <separator label="Offline"/>'
+	print('  <separator label="Offline"/>')
 	for username,userid in sorted(offlineFriends):
 		print("""  <item label='"""+username.replace('&','&amp;').replace("'","&apos;").replace("_","__")+"""'>
     <action name='Execute'>
       <execute>steam steam://friends/message/"""+userid+"""</execute>
     </action>
   </item>""")
-print "</openbox_pipe_menu>"
+print("</openbox_pipe_menu>")
