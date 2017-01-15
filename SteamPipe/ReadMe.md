@@ -1,5 +1,5 @@
 # SteamPipe
-A pipe menu to handle directly launching a Steam game or just opening Steam. Optional `SteamFriendsPipe` will also check which friends are online and allow you to log in and open the message window.
+A pipe menu to handle directly launching a Steam game or just opening Steam. Optional `SteamFriendsPipe` will also check which friends are online and allow you to log in and open the message window. Both require Python3
 
 ## Requirements
 * Steam
