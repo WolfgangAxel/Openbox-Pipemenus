@@ -49,7 +49,7 @@ else:
     </action>
   </item>""")
 if path.exists(path.dirname(path.realpath(__file__))+"/SteamFriendsPipe.py"):
-	print('  <menu execute="python '+path.dirname(path.realpath(__file__))+'/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>')
+	print('  <menu execute="python3 '+path.dirname(path.realpath(__file__))+'/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>')
 else:
 	print("""  <menu id="steamchat" label="Chat">
     <item label="Open Friends">
