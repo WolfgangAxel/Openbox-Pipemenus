@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  SteamPipe.py.py
@@ -27,7 +27,7 @@ from os import popen,path
 from re import search
 
 # Begin
-print "<openbox_pipe_menu>"
+print("<openbox_pipe_menu>")
 
 # Check to see if Steam is running, label buttons accordingly
 running = popen("ps axf | grep -i steam | grep -v SteamPipe | grep -v grep").read()
@@ -49,7 +49,7 @@ else:
     </action>
   </item>""")
 if path.exists(path.dirname(path.realpath(__file__))+"/SteamFriendsPipe.py"):
-	print '  <menu execute="python '+path.dirname(path.realpath(__file__))+'/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>'
+	print('  <menu execute="python '+path.dirname(path.realpath(__file__))+'/SteamFriendsPipe.py" id="steamfriendspipe" label="Chat"/>')
 else:
 	print("""  <menu id="steamchat" label="Chat">
     <item label="Open Friends">
@@ -74,32 +74,37 @@ else:
     </item>
   </menu>
 """)
-print '  <menu id="steamGames" label="Games">'
-GAMES=[]
+# Begin the games section
+print('  <separator label="Games"/>')
+GAMES={}
 for DIR in STEAMAPPS:
 	# Make sure all DIR are in the same format
 	if DIR[-1] != '/':
 		DIR=DIR+'/'
 	# Get the .acf's in that DIR
 	SOMEGAMES = popen('ls "'+DIR+'"*.acf').readlines()
-	# Read the .acf's and add the game's name and ID to a list
+	# Read the .acf's and add the game's name and ID to a list based on the game's first letter
 	for GAME in SOMEGAMES:
 		ACF=open(GAME.replace('\n',''),'r').read()
 		# Find the appid of the game
 		ID=search('"appid".*"(.*)"',ACF).group(1)
 		# Find the name of the game
 		NAME=search('"name".*"(.*)"',ACF).group(1)
-		GAMES.append([NAME,ID])
-# Make an entry for each game (and alphabetize the list)
-for GAME in sorted(GAMES):
-	NAME,ID=GAME
-	# Make the entry
-	print '    <item label="'+NAME.replace('&','&amp;').replace("'","&apos;").replace("_","__")+'">'
-	print '      <action name="Execute">'
-	print "        <execute>steam steam://run/"+ID+"</execute>"
-	print "      </action>"
-	print "    </item>"
-
+		# Try to add the game to a list, make the list if it doesn't already exist
+		try:
+			GAMES[NAME[0].upper()].append([NAME,ID])
+		except:
+			GAMES[NAME[0].upper()] = [[NAME,ID]]
+# Alphabetize first letters of games, then create a menu for each letter
+for letter in sorted(GAMES):
+	print('  <menu id="steamGames'+letter+'" label="'+letter.replace('&','&amp;').replace("'","&apos;").replace("_","__")+'">')
+	for GAME in sorted(GAMES[letter]):
+		NAME,ID = GAME
+		print('    <item label="'+NAME.replace('&','&amp;').replace("'","&apos;").replace("_","__")+'">')
+		print('      <action name="Execute">')
+		print("        <execute>steam steam://run/"+ID+"</execute>")
+		print("      </action>")
+		print("    </item>")
+	print('  </menu>')
 # End the menu
-print("""  </menu>
-</openbox_pipe_menu>""")
+print("</openbox_pipe_menu>")
