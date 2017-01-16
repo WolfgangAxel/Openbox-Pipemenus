@@ -11,6 +11,6 @@ This pipe menu assumes you have one directory where you store all of your .gb* f
 * PulseAudio (causing random crashing of VBA-M)
 
 ## Instructions
-After the first comment block, paste the full path to your "GameBoy" directory inbetween the single-quotes after `gamedir`.
+Use `-d` to designate your GameBoy folder. Defaults to `~/Games/GameBoy`
 
 If you want to remove the bios requirement, just delete `--bios="+gamedir+"gba_bios.bin` from the `<execute>` line.
