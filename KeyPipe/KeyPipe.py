@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  KeyPipe.py
@@ -21,17 +21,16 @@ from os.path import expanduser
 
 home=expanduser("~")
 
-print "<openbox_pipe_menu>"
+print("<openbox_pipe_menu>")
 rc = open(home+"/.config/openbox/rc.xml","r").read()
 soup = BS(rc,'html.parser')
 for name,keybind in sorted([[Keybind.string.lower(),Keybind] for Keybind in soup.find_all("name")]):
-	print keybind, name
 	if keybind.parent.parent.parent.name == "keybind":
-		print "  <menu id='"+keybind.parent.parent.parent['key']+"' label='"+keybind.parent.parent.parent['key']+"'>"
-		print "    <item label='"+name.capitalize()+"'>"
-		print "      <action name='Execute'>"
-		print "        <execute>"+keybind.parent.parent.command.string+"</execute>"
-		print "      </action>"
-		print "    </item>"
-		print "  </menu>"
-print "</openbox_pipe_menu>"
+		print("  <menu id='"+keybind.parent.parent.parent['key']+"' label='"+keybind.parent.parent.parent['key']+"'>")
+		print("    <item label='"+name.capitalize()+"'>")
+		print("      <action name='Execute'>")
+		print("        <execute>"+keybind.parent.parent.command.string+"</execute>")
+		print("      </action>")
+		print("    </item>")
+		print("  </menu>")
+print("</openbox_pipe_menu>")
