@@ -25,7 +25,7 @@
 # Find your Steam ID by going to steamrep.com, entering your username,
 # then copying the "steamID64" here.
 
-ID = "76561198073035719"
+ID = ""
 
 from requests import get
 from bs4 import BeautifulSoup as BS
