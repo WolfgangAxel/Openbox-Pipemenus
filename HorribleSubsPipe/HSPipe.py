@@ -107,7 +107,7 @@ print("  <item label='HorribleSubs.info'>\n"
       "    <separator label='"+myAnimeFolder+"'/>\n"
       "  </menu>\n"
       "  <separator/>")
-for show in sorted(currEps): ## alphabetizes the menu
+for show in sorted(currEps, key=lambda l: l[0].lower()): ## alphabetizes the menu
 	## set the download folder to be myAnimeFolder/the title of the show
 	try:
 		folder = XMLFriendly(myAnimeFolder+"/"+match("(.*)( - | \(.*\))",show).group(1))
