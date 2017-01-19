@@ -97,6 +97,9 @@ page = get("https://www.nyaa.se/?page=rss&cats=1_0&term=%5BHorribleSubs%5D")
 soup = BS(page.content,'html.parser')
 ## Create a dictionary with arrays of qualities and download links separated by show title
 currEps = buildShowList(soup)
+for show in currEps:
+	if show[-1] == ' ':
+		currEps[show[:-1]] = currEps.pop(show)
 print("<openbox_pipe_menu>")
 print("  <item label='HorribleSubs.info'>\n"
       "    <action name='Execute'>\n"
@@ -112,12 +115,7 @@ for show in sorted(currEps, key=lambda l: l[0].lower()): ## alphabetizes the men
 	try:
 		folder = XMLFriendly(myAnimeFolder+"/"+match("(.*)( - | \(.*\))",show).group(1))
 	except:
-		if show[-1] == ' ':
-			show = show[:-1]
-			folder = XMLFriendly(myAnimeFolder+"/"+show)
-		else:
-			print("  <separator label='Error with "+XMLFriendly(show)+"' />")
-			continue
+		folder = XMLFriendly(myAnimeFolder+"/"+show)
 	## make a submenu for the available qualities
 	print("  <menu id='"+XMLFriendly(show)+"' label='"+XMLFriendly(show)+"'>")
 	for qual,link in sorted(currEps[show], key=lambda qt: eval(qt[0][:-1])):
