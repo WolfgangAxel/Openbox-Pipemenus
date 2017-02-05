@@ -23,37 +23,37 @@ from sys import argv
 args = [arg for arg in argv]
 
 if ("-h" or "--help") in args:
-	print("HorribleSubs OpenBox Pipemenu\n"
-	"Usage: python3 HSPipe.py [OPTIONS]\n"
-	"Options:\n"
-	"  -h/--help    This help\n"
-	"  -d DIR       Specify a download directory\n"
-	"  -l LIMIT     Limit to a certain number of menu items\n"
-	)
-	exit()
+    print("HorribleSubs OpenBox Pipemenu\n"
+    "Usage: python3 HSPipe.py [OPTIONS]\n"
+    "Options:\n"
+    "  -h/--help    This help\n"
+    "  -d DIR       Specify a download directory\n"
+    "  -l LIMIT     Limit to a certain number of menu items\n"
+    )
+    exit()
 
 if "-l" in args:
-	limit = eval(args[args.index('-l')+1])
+    limit = eval(args[args.index('-l')+1])
 else:
-	limit = 300 ## Arbitrary number
+    limit = 300 ## Arbitrary number
 
 from os.path import exists,expanduser
 ## Check args for directory, check if it exists
 ## Default to ~/Videos or just ~ if other not specified or doesn't exist
 myAnimeFolder = False
 if "-d" in args:
-	argdir = args[args.index('-d')+1]
-	if exists(expanduser(argdir)):
-		myAnimeFolder = expanduser(argdir)
+    argdir = args[args.index('-d')+1]
+    if exists(expanduser(argdir)):
+        myAnimeFolder = expanduser(argdir)
 if not myAnimeFolder:
-	if exists(expanduser("~/Videos")):
-		myAnimeFolder = expanduser("~/Videos")
-	else:
-		myAnimeFolder = expanduser("~")
+    if exists(expanduser("~/Videos")):
+        myAnimeFolder = expanduser("~/Videos")
+    else:
+        myAnimeFolder = expanduser("~")
 
 ## Normalize folder
 if myAnimeFolder[-1] == '/':
-	myAnimeFolder = myAnimeFolder[:-1]
+    myAnimeFolder = myAnimeFolder[:-1]
 
 from re import match
 from requests import get
@@ -62,33 +62,33 @@ from bs4 import BeautifulSoup as BS
 ### Definitions
 
 def buildShowList(soup):
-	List={}
-	for item in soup.find_all('item'):
-		DL = []
-		Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.{4,5})\]',item.title.string)
-		try: ## Tries to grab show title
-			title = Entry.group(1)
-			qual = Entry.group(2)
-		except: ## Probably a NotHorribleSubs torrent
-			try:
-				Entry = match('(?i)\[(.*)\] (.* )+\[(.{4,5)\]',item.title.string)
-				title = Entry.group(2)+'['+Entry.group(1)+'] '
-				qual = Entry.group(3)
-			except: ## If it still isn't matching, something is wrong with it.
-				continue
-		## Get the download link
-		link = item.link.string
-		## Add it to the dictionary, or not.
-		try:
-			List[title].append([qual,link])
-		except:
-			if len(List) >= limit:
-				break
-			List[title] = [[qual,link]]
-	return List
+    List={}
+    for item in soup.find_all('item'):
+        DL = []
+        Entry = match('(?i)\[HorribleSubs\] (.* )+\[(.{4,5})\]',item.title.string)
+        try: ## Tries to grab show title
+            title = Entry.group(1)
+            qual = Entry.group(2)
+        except: ## Probably a NotHorribleSubs torrent
+            try:
+                Entry = match('(?i)\[(.*)\] (.* )+\[(.{4,5)\]',item.title.string)
+                title = Entry.group(2)+'['+Entry.group(1)+'] '
+                qual = Entry.group(3)
+            except: ## If it still isn't matching, something is wrong with it.
+                continue
+        ## Get the download link
+        link = item.link.string
+        ## Add it to the dictionary, or not.
+        try:
+            List[title].append([qual,link])
+        except:
+            if len(List) >= limit:
+                break
+            List[title] = [[qual,link]]
+    return List
 
 def XMLFriendly(s):
-	return s.replace('&','&amp;').replace("'","&apos;").replace("_","__")
+    return s.replace('&','&amp;').replace("'","&apos;").replace("_","__")
 
 ### Begin piping
 
@@ -98,8 +98,8 @@ soup = BS(page.content,'html.parser')
 ## Create a dictionary with arrays of qualities and download links separated by show title
 currEps = buildShowList(soup)
 for show in currEps:
-	if show[-1] == ' ':
-		currEps[show[:-1]] = currEps.pop(show)
+    if show[-1] == ' ':
+        currEps[show[:-1]] = currEps.pop(show)
 print("<openbox_pipe_menu>")
 print("  <item label='HorribleSubs.info'>\n"
       "    <action name='Execute'>\n"
@@ -111,23 +111,27 @@ print("  <item label='HorribleSubs.info'>\n"
       "  </menu>\n"
       "  <separator/>")
 for show in sorted(currEps, key=lambda l: l[0].lower()): ## alphabetizes the menu
-	## set the download folder to be myAnimeFolder/the title of the show
-	try:
-		folder = XMLFriendly(myAnimeFolder+"/"+match("(.*)( - | \(.*\))",show).group(1))
-	except:
-		folder = XMLFriendly(myAnimeFolder+"/"+show)
-	## make a submenu for the available qualities
-	print("  <menu id='"+XMLFriendly(show)+"' label='"+XMLFriendly(show)+"'>")
-	for qual,link in sorted(currEps[show], key=lambda qt: eval(qt[0][:-1])):
-		## make the menu item for each quality
-		print("    <item label='"+qual+"'>")
-		print("      <action name='Execute'>")
-		##                The menu commands do the following:
-		## attempt to make a folder in myAnimeDownloads; wget the .torrent
-		## file; start transmission-cli downloading; when finished downloading,
-		## remove the .torrent file, then remove all torrents from the queue
-		print('        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+XMLFriendly(link)+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"')
-		print("      </action>")
-		print("    </item>")
-	print("  </menu>")
+    ## set the download folder to be myAnimeFolder/the title of the show
+    try:
+        folder = XMLFriendly(myAnimeFolder+"/"+match("(.*)( - | \(.*\))",show).group(1))
+    except:
+        folder = XMLFriendly(myAnimeFolder+"/"+show)
+    ## make a submenu for the available qualities
+    print("  <menu id='"+XMLFriendly(show)+"' label='"+XMLFriendly(show)+"'>")
+    for qual,link in sorted(currEps[show], key=lambda qt: eval(qt[0][:-1])):
+        ## If it already is downloaded, say so
+        if exists(folder+"/[HorribleSubs] "+show+" ["+qual+"].mkv"):
+            print("    <separator label='Already downloaded "+qual+"'/>")
+            continue
+        ## make the menu item for each quality
+        print("    <item label='"+qual+"'>")
+        print("      <action name='Execute'>")
+        ##                The menu commands do the following:
+        ## attempt to make a folder in myAnimeDownloads; wget the .torrent
+        ## file; start transmission-cli downloading; when finished downloading,
+        ## remove the .torrent file, then remove all torrents from the queue
+        print('        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+XMLFriendly(link)+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"')
+        print("      </action>")
+        print("    </item>")
+    print("  </menu>")
 print("</openbox_pipe_menu>")
