@@ -90,6 +90,14 @@ def buildShowList(soup):
 def XMLFriendly(s):
     return s.replace('&','&amp;').replace("'","&apos;").replace("_","__")
 
+
+
+if exists(myAnimeFolder+"/WatchList"):
+    with open(myAnimeFolder+"/WatchList","r") as WL:
+        watchList = WL.read().splitlines()
+else:
+    watchList = []
+
 ### Begin piping
 
 ## Search Nyaa.se for the recent HS torrents
@@ -117,7 +125,20 @@ for show in sorted(currEps, key=lambda l: l.lower()): ## alphabetizes the menu
     except:
         folder = XMLFriendly(myAnimeFolder+"/"+show)
     ## make a submenu for the available qualities
-    print("  <menu id='"+XMLFriendly(show)+"' label='"+XMLFriendly(show)+"'>")
+    title = folder.replace(myAnimeFolder+"/","")
+    if title in watchList:
+        print("  <menu id='"+XMLFriendly(show)+"' label='WL! --> "+XMLFriendly(show)+"'>")
+        print("    <item label='Remove from Watch List'>")
+        print("      <action name='Execute'>")
+        print("        <execute>sh -c \"sed -i '/"+title+"/d' "+myAnimeFolder+"/WatchList\"</execute>")
+    else:
+        print("  <menu id='"+XMLFriendly(show)+"' label='"+XMLFriendly(show)+"'>")
+        print("    <item label='Add to Watch List'>")
+        print("      <action name='Execute'>")
+        print("        <execute>sh -c \"echo "+title+" >> "+myAnimeFolder+"/WatchList\"</execute>")
+    print("      </action>")
+    print("    </item>")
+    print("    <separator/>")
     for qual,link in sorted(currEps[show], key=lambda qt: eval(qt[0][:-1])):
         ## If it already is downloaded, say so
         if exists(folder+"/[HorribleSubs] "+show+" ["+qual+"].mkv"):
