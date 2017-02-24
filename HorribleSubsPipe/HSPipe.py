@@ -16,15 +16,12 @@
 #  GNU General Public License for more details.
 #  
 
-# The default is to use the ~/Videos folder. To specify a different
-# folder, paste the full path to your anime folder in between the ''s
-
 from sys import argv
 args = [arg for arg in argv]
 
 if ("-h" or "--help") in args:
-    print("HorribleSubs OpenBox Pipemenu\n"
-    "Usage: python3 HSPipe.py [OPTIONS]\n"
+    print("Unofficial HorribleSubs OpenBox Pipemenu\n"
+    "Usage: python3 "+__file__+" [OPTIONS]\n"
     "Options:\n"
     "  -h/--help    This help\n"
     "  -d DIR       Specify a download directory\n"
@@ -144,14 +141,15 @@ for show in sorted(currEps, key=lambda l: l.lower()): ## alphabetizes the menu
         if exists(folder+"/[HorribleSubs] "+show+" ["+qual+"].mkv"):
             print("    <separator label='Already downloaded "+qual+"'/>")
             continue
-        ## make the menu item for each quality
+        ## otherwise, make the menu item for each quality
         print("    <item label='"+qual+"'>")
         print("      <action name='Execute'>")
         ##                The menu commands do the following:
-        ## attempt to make a folder in myAnimeDownloads; wget the .torrent
-        ## file; start transmission-cli downloading; when finished downloading,
-        ## remove the .torrent file, then remove all torrents from the queue
-        print('        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'"; wget --output-document="'+folder+'/thisShow.torrent" "'+XMLFriendly(link)+'"&amp;&amp; transmission-cli --uplimit=0 -D --download-dir="'+folder+'" "'+folder+'/thisShow.torrent"&amp;&amp; rm "'+folder+'/thisShow.torrent"&amp;&amp; rm ~/.config/transmission/torrents/*; rm ~/.config/transmission/resume/[Horrible*\'</execute>"')
+        ## attempt to make a folder in myAnimeFolder; cd into it;
+        ## start the bittorrent download using the curses interface
+        print('        <execute>x-terminal-emulator --command=\'mkdir "'+folder+'";'
+              'cd "'+folder+'"&amp;&amp;'
+              'btdownloadcurses --max_uploads 0 "'+XMLFriendly(link)+'"\'</execute>"')
         print("      </action>")
         print("    </item>")
     print("  </menu>")
