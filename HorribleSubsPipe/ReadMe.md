@@ -1,4 +1,6 @@
 #HorribleSubsPipe
+[See it in action here.](http://imgur.com/a/D32GG)
+
 Originally stemmed from my random-projects/HSTorr.py script. It will populate a menu with the recent HorribleSubs torrents from nyaa.se and use `btdownloadcurses` (bittorrent) to download them. All downloads will be sorted into folders based off of the name of the show inside of a sepcified download directory
 
 ## Requirements
